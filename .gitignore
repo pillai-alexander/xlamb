@@ -1,0 +1,15 @@
+# ignore all
+*
+
+# unignore all with extentions
+!*.*
+
+# unignore all directories
+!*/
+
+# directory ignores
+build/
+.vscode/
+
+# other ignores
+*.out
