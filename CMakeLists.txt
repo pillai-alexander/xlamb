@@ -61,7 +61,7 @@ endif()
 
 include(cmake/CPM.cmake)
 
-# CPMAddPackage("gh:fmtlib/fmt#11.0.2")
+CPMAddPackage("gh:gabime/spdlog@1.15.0")
 # CPMAddPackage("gh:CLIUtils/CLI11@2.4.2")
 # CPMAddPackage("gh:google/googletest@1.15.2")
 
@@ -223,8 +223,6 @@ if(XLAMB_ENABLE_SANITIZER_ADDRESS
 endif()
 
 add_subdirectory(src)
-
-add_subdirectory(app)
 
 include(CTest)
 
