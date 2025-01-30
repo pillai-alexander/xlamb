@@ -10,6 +10,8 @@ add_library(
 
 target_include_directories(xlamb PUBLIC ${xlamb_SOURCE_DIR}/include)
 
+target_link_libraries(xlamb PRIVATE spdlog)
+
 # IDEs should put the headers in a nice place
 source_group(
   TREE "${xlamb_SOURCE_DIR}/include/xlamb"
