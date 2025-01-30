@@ -224,6 +224,8 @@ endif()
 
 add_subdirectory(src)
 
+add_subdirectory(examples)
+
 include(CTest)
 
 if(XLAMB_ENABLE_TESTS AND PROJECT_IS_TOP_LEVEL)
