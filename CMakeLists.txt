@@ -62,6 +62,7 @@ endif()
 include(cmake/CPM.cmake)
 
 CPMAddPackage("gh:gabime/spdlog@1.15.0")
+CPMAddPackage("gh:skypjack/entt@3.14.0")
 # CPMAddPackage("gh:CLIUtils/CLI11@2.4.2")
 # CPMAddPackage("gh:google/googletest@1.15.2")
 
