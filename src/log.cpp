@@ -5,6 +5,8 @@
 #include <spdlog/spdlog.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
 
+#include <entt/entt.hpp>
+
 namespace xlamb {
 
 std::shared_ptr<spdlog::logger> Log::logger;

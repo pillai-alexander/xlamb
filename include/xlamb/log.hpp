@@ -7,7 +7,7 @@ namespace spdlog { class logger; };
 
 namespace xlamb {
 
-class Log{
+class Log {
   public:
     static void init();
 

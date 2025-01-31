@@ -1,7 +1,7 @@
-#include <xlamb/log.hpp>
+#include <xlamb/xlamb.hpp>
 
 int main() {
-{ // testing logging
+    // testing logging
     xlamb::Log::init();
     xlamb::Log::trace("trace");
     xlamb::Log::debug("debug");
@@ -9,7 +9,26 @@ int main() {
     xlamb::Log::warn("warn");
     xlamb::Log::error("error");
     xlamb::Log::critical("critical");
-}
 
-    return 0;
+
+    // testing EnTT
+    struct position {
+        int x;
+        int y;
+    };
+
+    struct velocity {
+        float x;
+        float y;
+    };
+
+    xlamb::Builder builder;
+
+    for(auto i = 0u; i < 10u; ++i) {
+        const auto entity = builder.context.create_entity();
+        builder.context.destroy_entity(entity);
+    }
+
+
+    return EXIT_SUCCESS;
 }
