@@ -2,14 +2,12 @@
 
 int main() {
     // testing logging
-    xlamb::Log::init();
-    xlamb::Log::trace("trace");
-    xlamb::Log::debug("debug");
-    xlamb::Log::info("info");
-    xlamb::Log::warn("warn");
-    xlamb::Log::error("error");
-    xlamb::Log::critical("critical");
-
+    XLAMB_TRACE("trace");
+    XLAMB_DEBUG("debug");
+    XLAMB_INFO("info");
+    XLAMB_WARN("warn");
+    XLAMB_ERROR("error");
+    XLAMB_CRITICAL("critical");
 
     // testing EnTT
     struct position {

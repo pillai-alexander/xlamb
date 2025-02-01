@@ -4,7 +4,7 @@ file(GLOB HEADER_LIST CONFIGURE_DEPENDS "${xlamb_SOURCE_DIR}/include/xlamb/*.hpp
 
 add_library(
   xlamb
-  log.cpp
+  logger.cpp
   context.cpp
   builder.cpp
   ${HEADER_LIST}
@@ -12,7 +12,7 @@ add_library(
 
 target_include_directories(xlamb PUBLIC ${xlamb_SOURCE_DIR}/include)
 
-target_link_libraries(xlamb PRIVATE spdlog EnTT)
+target_link_libraries(xlamb PUBLIC spdlog EnTT)
 
 # IDEs should put the headers in a nice place
 source_group(
