@@ -10,14 +10,14 @@ using log_level = spdlog::level::level_enum;
 
 namespace xlamb {
 
-struct Log;
+struct log;
 
-class Logger {
+class logger {
   public:
-    Logger(const Logger&)            = delete;
-    Logger& operator=(const Logger&) = delete;
+    logger(const logger&)            = delete;
+    logger& operator=(const logger&) = delete;
 
-    static Logger& get();
+    static logger& get();
 
     void set_log_storage(bool);
     void set_console_printing(bool);
@@ -30,24 +30,24 @@ class Logger {
     void critical(std::string);
 
   private:
-    Logger(bool storage = false, bool console = true);
-    ~Logger() = default;
+    logger(bool storage = false, bool console = true);
+    ~logger() = default;
 
     bool store_logs;
     bool console_logs;
 
     void store_log(log_level, std::string);
 
-    std::vector<Log> log_entries;
+    std::vector<log> log_entries;
 
     static std::shared_ptr<spdlog::logger> spdlogger;
 };
 
 } // namespace xlamb
 
-#define XLAMB_TRACE(s) xlamb::Logger::get().trace(s);
-#define XLAMB_DEBUG(s) xlamb::Logger::get().debug(s);
-#define XLAMB_INFO(s) xlamb::Logger::get().info(s);
-#define XLAMB_WARN(s) xlamb::Logger::get().warn(s);
-#define XLAMB_ERROR(s) xlamb::Logger::get().error(s);
-#define XLAMB_CRITICAL(s) xlamb::Logger::get().critical(s);
+#define XLAMB_TRACE(s) xlamb::logger::get().trace(s);
+#define XLAMB_DEBUG(s) xlamb::logger::get().debug(s);
+#define XLAMB_INFO(s) xlamb::logger::get().info(s);
+#define XLAMB_WARN(s) xlamb::logger::get().warn(s);
+#define XLAMB_ERROR(s) xlamb::logger::get().error(s);
+#define XLAMB_CRITICAL(s) xlamb::logger::get().critical(s);

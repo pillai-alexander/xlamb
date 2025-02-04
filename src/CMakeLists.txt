@@ -6,7 +6,7 @@ add_library(
   xlamb
   logger.cpp
   context.cpp
-  builder.cpp
+  architect.cpp
   ${HEADER_LIST}
 )
 

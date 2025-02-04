@@ -6,14 +6,14 @@
 
 namespace xlamb {
 
-class Context;
+class context;
 
-class Builder {
+class architect {
   public:
-    Builder() = default;
-    ~Builder() = default;
+    architect() = default;
+    ~architect() = default;
 
-    Context context;
+    xlamb::context context;
   private:
 };
 

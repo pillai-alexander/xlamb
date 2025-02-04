@@ -20,11 +20,12 @@ int main() {
         float y;
     };
 
-    xlamb::Builder builder;
+    xlamb::architect architect;
+    auto& context = architect.context;
 
     for(auto i = 0u; i < 10u; ++i) {
-        const auto entity = builder.context.create_entity();
-        builder.context.destroy_entity(entity);
+        const auto entity = context.create_entity();
+        context.destroy_entity(entity);
     }
 
 

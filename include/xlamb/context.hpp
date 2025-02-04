@@ -4,10 +4,10 @@
 
 namespace xlamb {
 
-class Context {
+class context {
   public:
-    Context();
-    ~Context();
+    context();
+    ~context();
 
     entt::entity create_entity();
     void destroy_entity(entt::entity);
