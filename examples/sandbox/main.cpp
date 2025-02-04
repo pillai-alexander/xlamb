@@ -1,5 +1,9 @@
 #include <xlamb/xlamb.hpp>
 
+struct SusceptibilityComponent {
+    float susceptibility;
+};
+
 int main() {
     // testing logging
     XLAMB_TRACE("trace");
@@ -8,17 +12,6 @@ int main() {
     XLAMB_WARN("warn");
     XLAMB_ERROR("error");
     XLAMB_CRITICAL("critical");
-
-    // testing EnTT
-    struct position {
-        int x;
-        int y;
-    };
-
-    struct velocity {
-        float x;
-        float y;
-    };
 
     xlamb::Architect architect;
     auto& context = architect.context;
@@ -30,9 +23,31 @@ int main() {
 
     auto default_entity = context.create_entity();
     XLAMB_INFO("default name = {}", default_entity.name());
+    context.destroy_entity(default_entity);
 
     auto named_entity = context.create_entity("named_entity");
-    XLAMB_INFO("entity w/ name = {}", named_entity.name());
+    named_entity.add_component<SusceptibilityComponent>(1.0);
+    XLAMB_INFO("entity ({}) w/ suscep = {}",
+      named_entity.name(),
+      named_entity.get_component<SusceptibilityComponent>().susceptibility
+    );
+
+    context.clear_registry();
+
+    for (int i = 0; i < 10; ++i) {
+        auto ent = context.create_entity("entity_" + std::to_string(i));
+        const auto baseline_suscep = (i < 5) ? 0.5 : 1.0;
+        ent.add_component<SusceptibilityComponent>(baseline_suscep);
+    }
+
+    auto view = context.view_entities_with<xlamb::TagComponent, SusceptibilityComponent>();
+    for (auto ent : view) {
+        const auto [tag, suscep] = view.get(ent);
+
+        const auto n = tag.name;
+        const auto s = suscep.susceptibility;
+        XLAMB_INFO("{} suscep = {}", n, s);
+    }
 
 /* API PLANNING
 
