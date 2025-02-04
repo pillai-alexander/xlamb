@@ -29,12 +29,10 @@ int main() {
     }
 
     auto default_entity = context.create_entity();
-    auto default_name = default_entity.get_component<xlamb::TagComponent>();
-    XLAMB_INFO("default name = {}", default_name.name);
+    XLAMB_INFO("default name = {}", default_entity.name());
 
     auto named_entity = context.create_entity("named_entity");
-    auto new_name = named_entity.get_component<xlamb::TagComponent>().name;
-    XLAMB_INFO("entity w/ name = {}", new_name);
+    XLAMB_INFO("entity w/ name = {}", named_entity.name());
 
 /* API PLANNING
 

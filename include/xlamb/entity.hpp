@@ -51,6 +51,8 @@ class Entity {
         return context->registry.remove<T>(entity_handle);
     }
 
+    const std::string& name();
+
   private:
     entt::entity entity_handle;
     Context* context;
