@@ -35,5 +35,22 @@ int main() {
     auto named_entity = context.create_entity("named_entity");
     auto new_name = named_entity.get_component<xlamb::TagComponent>().name;
     XLAMB_INFO("entity w/ name = {}", new_name);
+
+/* API PLANNING
+
+    # in user main.cpp
+    int main(int argc, char* argv[]) {
+        xlamb::architect app(argc, argv);
+        return app.run();
+    }
+
+    # xlamb::architect::run() plan
+      # read config files
+      # read from database (single or batch)
+      # set up/run simulation(s)
+      # calculate metrics + save to file/database
+
+*/
+
     return EXIT_SUCCESS;
 }
