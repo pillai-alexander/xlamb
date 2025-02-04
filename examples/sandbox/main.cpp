@@ -20,7 +20,7 @@ int main() {
         float y;
     };
 
-    xlamb::architect architect;
+    xlamb::Architect architect;
     auto& context = architect.context;
 
     for(auto i = 0u; i < 10u; ++i) {

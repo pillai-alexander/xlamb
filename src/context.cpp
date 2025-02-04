@@ -4,16 +4,16 @@
 
 namespace xlamb {
 
-context::context() {}
+Context::Context() {}
 
-context::~context() {}
+Context::~Context() {}
 
-entt::entity context::create_entity() {
+entt::entity Context::create_entity() {
     auto entity = registry.create();
     return entity;
 }
 
-void context::destroy_entity(entt::entity entity) {
+void Context::destroy_entity(entt::entity entity) {
     registry.destroy(entity);
 }
 
