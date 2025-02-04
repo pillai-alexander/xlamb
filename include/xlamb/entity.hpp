@@ -46,6 +46,11 @@ class Entity {
         return context->registry.get<T>(entity_handle);
     }
 
+    template<typename... Ts>
+    auto get_components() {
+        return context->registry.get<Ts...>(entity_handle);
+    }
+
     template<typename T>
     void remove_component() {
         return context->registry.remove<T>(entity_handle);

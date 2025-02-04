@@ -17,6 +17,9 @@ class Context {
     template<typename T>
     void clear_component() { registry.clear<T>(); }
 
+    template<typename... Ts>
+    auto view_entities_with() { return registry.view<Ts...>(); }
+
     void clear_registry();
 
   private:
