@@ -5,6 +5,7 @@ file(GLOB HEADER_LIST CONFIGURE_DEPENDS "${xlamb_SOURCE_DIR}/include/xlamb/*.hpp
 add_library(
   xlamb
   logger.cpp
+  entity.cpp
   context.cpp
   architect.cpp
   ${HEADER_LIST}

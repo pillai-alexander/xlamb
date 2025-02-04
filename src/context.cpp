@@ -2,19 +2,25 @@
 
 #include <entt/entt.hpp>
 
+#include <xlamb/entity.hpp>
+
 namespace xlamb {
 
 Context::Context() {}
 
 Context::~Context() {}
 
-entt::entity Context::create_entity() {
-    auto entity = registry.create();
-    return entity;
+Entity Context::create_entity(const std::string name) {
+    Entity e = {registry.create(), this};
+    auto& tag = e.add_component<TagComponent>();
+    tag.name = name;
+    return e;
 }
 
-void Context::destroy_entity(entt::entity entity) {
-    registry.destroy(entity);
+void Context::destroy_entity(Entity e) {
+    registry.destroy(e.entity_handle);
 }
+
+void Context::clear_registry() { registry.clear(); }
 
 } // namespace xlamb

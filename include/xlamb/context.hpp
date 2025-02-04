@@ -4,16 +4,25 @@
 
 namespace xlamb {
 
+class Entity;
+
 class Context {
   public:
     Context();
     ~Context();
 
-    entt::entity create_entity();
-    void destroy_entity(entt::entity);
+    Entity create_entity(const std::string = "default_entity");
+    void destroy_entity(Entity e);
+
+    template<typename T>
+    void clear_component() { registry.clear<T>(); }
+
+    void clear_registry();
 
   private:
     entt::registry registry;
+
+    friend class Entity;
 };
 
 } // namespace xlamb
