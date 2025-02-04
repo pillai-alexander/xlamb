@@ -19,35 +19,54 @@ class Logger {
 
     static Logger& get();
 
-    void set_log_storage(bool);
     void set_console_printing(bool);
 
-    void trace(std::string);
-    void debug(std::string);
-    void info(std::string);
-    void warn(std::string);
-    void error(std::string);
-    void critical(std::string);
+    template<typename... Args>
+    void trace(Args&&... args) {
+        if (console_logs) spdlogger->trace(std::forward<Args>(args)...);
+    }
+
+    template<typename... Args>
+    void debug(Args&&... args) {
+        if (console_logs) spdlogger->debug(std::forward<Args>(args)...);
+    }
+
+    template<typename... Args>
+    void info(Args&&... args) {
+        if (console_logs) spdlogger->info(std::forward<Args>(args)...);
+    }
+
+    template<typename... Args>
+    void warn(Args&&... args) {
+        if (console_logs) spdlogger->warn(std::forward<Args>(args)...);
+    }
+
+    template<typename... Args>
+    void error(Args&&... args) {
+        if (console_logs) spdlogger->error(std::forward<Args>(args)...);
+    }
+
+    template<typename... Args>
+    void critical(Args&&... args) {
+        if (console_logs) spdlogger->critical(std::forward<Args>(args)...);
+    }
 
   private:
-    Logger(bool storage = false, bool console = true);
+    Logger(bool console = true);
     ~Logger() = default;
 
-    bool store_logs;
     bool console_logs;
 
     void store_log(log_level, std::string);
-
-    std::vector<Log> log_entries;
 
     static std::shared_ptr<spdlog::logger> spdlogger;
 };
 
 } // namespace xlamb
 
-#define XLAMB_TRACE(s) xlamb::Logger::get().trace(s);
-#define XLAMB_DEBUG(s) xlamb::Logger::get().debug(s);
-#define XLAMB_INFO(s) xlamb::Logger::get().info(s);
-#define XLAMB_WARN(s) xlamb::Logger::get().warn(s);
-#define XLAMB_ERROR(s) xlamb::Logger::get().error(s);
-#define XLAMB_CRITICAL(s) xlamb::Logger::get().critical(s);
+#define XLAMB_TRACE(...) xlamb::Logger::get().trace(__VA_ARGS__);
+#define XLAMB_DEBUG(...) xlamb::Logger::get().debug(__VA_ARGS__);
+#define XLAMB_INFO(...) xlamb::Logger::get().info(__VA_ARGS__);
+#define XLAMB_WARN(...) xlamb::Logger::get().warn(__VA_ARGS__);
+#define XLAMB_ERROR(...) xlamb::Logger::get().error(__VA_ARGS__);
+#define XLAMB_CRITICAL(...) xlamb::Logger::get().critical(__VA_ARGS__);
