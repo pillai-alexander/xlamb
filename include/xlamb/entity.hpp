@@ -65,4 +65,20 @@ class Entity {
     friend class Context;
 };
 
+// class ScriptableEntity {
+//   public:
+//     ScriptableEntity() = default;
+//     virtual ~ScriptableEntity() = default;
+
+//   protected:
+//     virtual void OnCreate() {}
+//     virtual void OnUpdate(size_t time) {}
+//     virtual void OnDestroy() {}
+
+//   private:
+//     Entity entity;
+
+//     friend class Context;
+// };
+
 } // namespace xlamb
