@@ -7,7 +7,7 @@ add_library(
   logger.cpp
   entity.cpp
   context.cpp
-  architect.cpp
+  simulator.cpp
   ${HEADER_LIST}
 )
 

@@ -1,4 +1,4 @@
-#include <xlamb/architect.hpp>
+#include <xlamb/simulator.hpp>
 
 #include <xlamb/context.hpp>
 

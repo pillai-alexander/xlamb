@@ -8,10 +8,10 @@ namespace xlamb {
 
 class Context;
 
-class Architect {
+class Simulator {
   public:
-    Architect() = default;
-    ~Architect() = default;
+    Simulator() = default;
+    ~Simulator() = default;
 
     xlamb::Context context;
   private:

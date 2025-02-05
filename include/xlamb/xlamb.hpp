@@ -1,6 +1,6 @@
 #pragma once
 
-#include <xlamb/architect.hpp>
+#include <xlamb/simulator.hpp>
 
 #include <xlamb/logger.hpp>
 

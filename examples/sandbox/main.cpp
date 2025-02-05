@@ -47,8 +47,8 @@ int main() {
     std::default_random_engine rng(0);
     std::uniform_real_distribution<> unif(0.0, 1.0);
 
-    xlamb::Architect architect;
-    auto& context = architect.context;
+    xlamb::Simulator simulator;
+    auto& context = simulator.context;
 
     auto flu = context.create_entity("flu_pathogen");
     flu.add_component<Pathogen>(Strain::FLU, 0.01);
@@ -95,11 +95,11 @@ int main() {
 
     # in user main.cpp
     int main(int argc, char* argv[]) {
-        xlamb::architect app(argc, argv);
+        xlamb::simulator app(argc, argv);
         return app.run();
     }
 
-    # xlamb::architect::run() plan
+    # xlamb::simulator::run() plan
       # read config files
       # read from database (single or batch)
       # set up/run simulation(s)
