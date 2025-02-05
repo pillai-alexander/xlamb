@@ -5,8 +5,13 @@
 
 enum class Strain {
     FLU,
-    NON_FLU,
     NUM_STRAINS
+};
+
+enum class VaccinationStatus {
+    VAXD,
+    UNVAXD,
+    NUM_VAX_STATUSES
 };
 
 struct Pathogen {
@@ -15,12 +20,7 @@ struct Pathogen {
 };
 
 struct Susceptibility {
-    Susceptibility() {
-        baseline_susceptibility[Strain::FLU]     = 1.0;
-        baseline_susceptibility[Strain::NON_FLU] = 1.0;
-        current_susceptibility[Strain::FLU]      = 1.0;
-        current_susceptibility[Strain::NON_FLU]  = 1.0;
-    };
+    Susceptibility() = default;
     std::unordered_map<Strain, float> baseline_susceptibility;
     std::unordered_map<Strain, float> current_susceptibility;
 };
@@ -31,6 +31,7 @@ struct Infection {
 };
 
 struct InfectionHistory {
+    bool has_been_infected() { return inf_hist.size() > 0; }
     std::vector<Infection> inf_hist;
 };
 
@@ -40,6 +41,7 @@ struct Vaccination {
 };
 
 struct VaccinationHistory {
+    bool is_vaccinated() { return vax_hist.size() > 0; }
     std::vector<Vaccination> vax_hist;
 };
 
@@ -53,43 +55,78 @@ int main() {
     auto flu = context.create_entity("flu_pathogen");
     flu.add_component<Pathogen>(Strain::FLU, 0.01);
 
-    auto nflu = context.create_entity("nonflu_pathogen");
-    nflu.add_component<Pathogen>(Strain::NON_FLU, 0.001);
-
-    for (int i = 0; i < 10; ++i) {
+    for (int i = 0; i < 1e2; ++i) {
         auto p = context.create_entity("person_" + std::to_string(i));
-        p.add_component<Susceptibility>();
+        auto& s = p.add_component<Susceptibility>();
+        s.baseline_susceptibility[Strain::FLU] = 1.0;
+        s.current_susceptibility[Strain::FLU]  = 1.0;
+
         p.add_component<InfectionHistory>();
         p.add_component<VaccinationHistory>();
     }
 
     auto vax = Vaccination();
-    vax.efficacy[Strain::FLU]     = 0.5;
-    vax.efficacy[Strain::NON_FLU] = 0.0;
+    vax.efficacy[Strain::FLU] = 0.5;
 
     auto people_to_be_vaxd = context.view_entities_with<VaccinationHistory, Susceptibility>();
     for (auto ent : people_to_be_vaxd) {
         if (unif(rng) < 0.5) {
             auto [vh, s] = people_to_be_vaxd.get(ent);
             vh.vax_hist.push_back(vax);
-            s.current_susceptibility.at(Strain::FLU) *= vax.efficacy.at(Strain::FLU);
-            s.current_susceptibility.at(Strain::NON_FLU) *= vax.efficacy.at(Strain::NON_FLU);
+            s.current_susceptibility.at(Strain::FLU) *= 1 - vax.efficacy.at(Strain::FLU);
         }
     }
 
-    auto synth_pop = context.view_entities_with<Susceptibility>();
-    for (auto ent : synth_pop) {
-        auto [s] = synth_pop.get(ent);
-        const auto curr_suscep = s.current_susceptibility.at(Strain::FLU);
-        XLAMB_TRACE("entity flu suscep = {}", curr_suscep);
+    auto full_pop = context.view_entities_with<Susceptibility, InfectionHistory, VaccinationHistory>();
+    auto synth_pop = context.view_entities_with<Susceptibility, InfectionHistory>();
+    // auto pathogens = context.view_entities_with<Pathogen>();
+
+    // XLAMB_INFO("INSPECTING ENTITIES");
+    // for (const auto ent : synth_pop) {
+    //     const auto [s, ih] = synth_pop.get(ent);
+    //     const auto curr_suscep = s.current_susceptibility.at(Strain::FLU);
+    //     XLAMB_TRACE("entity flu suscep = {}", curr_suscep);
+    // }
+
+    // for (const auto ent : pathogens) {
+    //     const auto [path] = pathogens.get(ent);
+    //     const auto strain = (path.strain == Strain::FLU) ? "flu" : "non_flu";
+    //     XLAMB_TRACE("pathogen {}: Pr(exposure) = {}", strain, path.pr_exposure);
+    // }
+
+    for (size_t time = 0; time < 200; ++time) {
+        for (auto ent : synth_pop) {
+            const auto pr_exp = flu.get_component<Pathogen>().pr_exposure;
+            if (unif(rng) < static_cast<double>(pr_exp)) {
+                auto [s, ih] = synth_pop.get(ent);
+                const auto current_suscep = s.current_susceptibility[Strain::FLU];
+                if (unif(rng) < static_cast<double>(current_suscep)) {
+                    ih.inf_hist.push_back({time, Strain::FLU});
+                    s.current_susceptibility[Strain::FLU] = 0.0;
+                }
+            }
+        }
     }
 
-    auto pathogens = context.view_entities_with<Pathogen>();
-    for (auto ent : pathogens) {
-        auto [path] = pathogens.get(ent);
-        auto strain = (path.strain == Strain::FLU) ? "flu" : "non_flu";
-        XLAMB_TRACE("pathogen {}: Pr(exposure) = {}", strain, path.pr_exposure);
+    std::unordered_map<VaccinationStatus, unsigned int> inf_ledger;
+    inf_ledger[VaccinationStatus::VAXD]   = 0;
+    inf_ledger[VaccinationStatus::UNVAXD] = 0;
+    for (const auto ent : full_pop) {
+        const auto [s, ih, vh] = full_pop.get(ent);
+
+        const auto vaccinated = vh.is_vaccinated();
+        const auto infected   = ih.has_been_infected();
+        if (infected) {
+            if (vaccinated) {
+                inf_ledger[VaccinationStatus::VAXD]++;
+            } else {
+                inf_ledger[VaccinationStatus::UNVAXD]++;
+            }
+        }
     }
+
+    XLAMB_INFO("Num vax infs:   {}", inf_ledger[VaccinationStatus::VAXD]);
+    XLAMB_INFO("Num unvax infs: {}", inf_ledger[VaccinationStatus::UNVAXD]);
 
 /* API PLANNING
 
