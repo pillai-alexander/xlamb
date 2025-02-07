@@ -1,5 +1,7 @@
 #pragma once
 
+#include <unordered_map>
+
 #include <entt/entt.hpp>
 
 namespace xlamb {
@@ -17,6 +19,8 @@ class Context {
     template<typename T>
     void clear_component() { registry.clear<T>(); }
 
+    Entity get_entity(std::string);
+
     template<typename... Ts>
     auto view_entities_with() { return registry.view<Ts...>(); }
 
@@ -24,6 +28,7 @@ class Context {
 
   private:
     entt::registry registry;
+    std::unordered_map<std::string, entt::entity> entity_lookup;
 
     friend class Entity;
 };
