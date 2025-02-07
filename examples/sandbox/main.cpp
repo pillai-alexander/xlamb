@@ -52,6 +52,7 @@ int main() {
     xlamb::Simulator simulator;
     auto& context = simulator.context;
 
+{ // SETUP
     auto flu = context.create_entity("flu_pathogen");
     flu.add_component<Pathogen>(Strain::FLU, 0.01);
 
@@ -76,23 +77,11 @@ int main() {
             s.current_susceptibility.at(Strain::FLU) *= 1 - vax.efficacy.at(Strain::FLU);
         }
     }
+}
 
-    auto full_pop = context.view_entities_with<Susceptibility, InfectionHistory, VaccinationHistory>();
+{ // SIMULATE
     auto synth_pop = context.view_entities_with<Susceptibility, InfectionHistory>();
-    // auto pathogens = context.view_entities_with<Pathogen>();
-
-    // XLAMB_INFO("INSPECTING ENTITIES");
-    // for (const auto ent : synth_pop) {
-    //     const auto [s, ih] = synth_pop.get(ent);
-    //     const auto curr_suscep = s.current_susceptibility.at(Strain::FLU);
-    //     XLAMB_TRACE("entity flu suscep = {}", curr_suscep);
-    // }
-
-    // for (const auto ent : pathogens) {
-    //     const auto [path] = pathogens.get(ent);
-    //     const auto strain = (path.strain == Strain::FLU) ? "flu" : "non_flu";
-    //     XLAMB_TRACE("pathogen {}: Pr(exposure) = {}", strain, path.pr_exposure);
-    // }
+    auto flu = context.get_entity("flu_pathogen");
 
     for (size_t time = 0; time < 200; ++time) {
         for (auto ent : synth_pop) {
@@ -107,6 +96,10 @@ int main() {
             }
         }
     }
+}
+
+{ // REPORT
+    auto full_pop = context.view_entities_with<Susceptibility, InfectionHistory, VaccinationHistory>();
 
     std::unordered_map<VaccinationStatus, unsigned int> inf_ledger;
     inf_ledger[VaccinationStatus::VAXD]   = 0;
@@ -127,7 +120,7 @@ int main() {
 
     XLAMB_INFO("Num vax infs:   {}", inf_ledger[VaccinationStatus::VAXD]);
     XLAMB_INFO("Num unvax infs: {}", inf_ledger[VaccinationStatus::UNVAXD]);
-
+}
 /* API PLANNING
 
     # in user main.cpp
