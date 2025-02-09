@@ -31,9 +31,9 @@ class Entity {
         return component;
     }
 
-    template<typename... T>
+    template<typename... Ts>
     bool has_all_of() {
-        return context->registry.all_of<T...>(entity_handle);
+        return context->registry.all_of<Ts...>(entity_handle);
     }
 
     template<typename... T>
