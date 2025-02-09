@@ -6,3 +6,4 @@
 
 #include <xlamb/entity.hpp>
 #include <xlamb/context.hpp>
+#include <xlamb/view.hpp>
