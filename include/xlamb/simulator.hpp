@@ -7,8 +7,6 @@
 
 namespace xlamb {
 
-class Context;
-
 class Simulator {
   public:
     Simulator() = default;
