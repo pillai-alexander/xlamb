@@ -48,11 +48,8 @@ struct VaccinationHistory {
     std::vector<Vaccination> vax_hist;
 };
 
-void setup(xlamb::Context& context) {
-    auto flu = context.create_entity("flu_pathogen");
-    flu.add_component<Pathogen>(Strain::FLU, 0.01);
-
-    for (int i = 0; i < 1e2; ++i) {
+void generate_synth_pop(xlamb::Context& context, const size_t pop_size) {
+    for (size_t i = 0; i < pop_size; ++i) {
         auto p = context.create_entity("person_" + std::to_string(i));
         auto& s = p.add_component<Susceptibility>();
         s.baseline_susceptibility[Strain::FLU] = 1.0;
@@ -61,13 +58,12 @@ void setup(xlamb::Context& context) {
         p.add_component<InfectionHistory>();
         p.add_component<VaccinationHistory>();
     }
+}
 
-    auto vax = Vaccination();
-    vax.efficacy[Strain::FLU] = 0.5;
-
+void random_vaccination_campaign(xlamb::Context& context, const double pr_vax, const Vaccination& vax) {
     auto people_to_be_vaxd = context.view_entities_with<VaccinationHistory, Susceptibility>();
     for (auto ent : people_to_be_vaxd) {
-        if (unif(rng) < 0.5) {
+        if (unif(rng) < pr_vax) {
             auto [vh, s] = people_to_be_vaxd.get(ent);
             vh.vax_hist.push_back(vax);
             s.current_susceptibility.at(Strain::FLU) *= 1 - vax.efficacy.at(Strain::FLU);
@@ -75,13 +71,48 @@ void setup(xlamb::Context& context) {
     }
 }
 
+void setup(xlamb::Context& context) {
+    auto flu = context.create_entity("flu_pathogen");
+    flu.add_component<Pathogen>(Strain::FLU, 0.01);
+
+    generate_synth_pop(context, 100);
+
+    auto vax = Vaccination();
+    vax.efficacy[Strain::FLU] = 0.5;
+
+    random_vaccination_campaign(context, 0.5, vax);
+}
+
+/* PLANNING XLAMB API
+
 void simulate(xlamb::Context& context) {
-    auto synth_pop = context.view_entities_with<Susceptibility, InfectionHistory>();
-    auto flu = context.get_entity("flu_pathogen");
+    xlamb::View synth_pop = context.view_entities_with<Susceptibility, InfectionHistory>();
+    xlamb::Entity flu = context.get_entity("flu_pathogen");
+    const auto pr_exp = flu.get_component<Pathogen>().pr_exposure;
 
     for (size_t time = 0; time < 200; ++time) {
         for (auto ent : synth_pop) {
-            const auto pr_exp = flu.get_component<Pathogen>().pr_exposure;
+            if (unif(rng) < static_cast<double>(pr_exp)) {
+                auto [s, ih] = synth_pop.get_components_from(ent);
+                const auto current_suscep = s.current_susceptibility[Strain::FLU];
+                if (unif(rng) < static_cast<double>(current_suscep)) {
+                    ih.inf_hist.push_back({time, Strain::FLU});
+                    s.current_susceptibility[Strain::FLU] = 0.0;
+                }
+            }
+        }
+    }
+}
+
+*/
+
+void simulate(xlamb::Context& context) {
+    auto synth_pop = context.view_entities_with<Susceptibility, InfectionHistory>();
+    auto flu = context.get_entity("flu_pathogen");
+    const auto pr_exp = flu.get_component<Pathogen>().pr_exposure;
+
+    for (size_t time = 0; time < 200; ++time) {
+        for (auto ent : synth_pop) {
             if (unif(rng) < static_cast<double>(pr_exp)) {
                 auto [s, ih] = synth_pop.get(ent);
                 const auto current_suscep = s.current_susceptibility[Strain::FLU];
