@@ -61,10 +61,8 @@ void generate_synth_pop(xlamb::Context& context, const size_t pop_size) {
 }
 
 void random_vaccination_campaign(xlamb::Context& context, const double pr_vax, const Vaccination& vax) {
-    auto people_to_be_vaxd = context.view_entities_with<VaccinationHistory, Susceptibility>();
-    for (auto ent : people_to_be_vaxd) {
+    for (auto [ent, vh, s] : context.each_entity_with<VaccinationHistory, Susceptibility>()) {
         if (unif(rng) < pr_vax) {
-            auto [vh, s] = people_to_be_vaxd.get(ent);
             vh.vax_hist.push_back(vax);
             s.current_susceptibility.at(Strain::FLU) *= 1 - vax.efficacy.at(Strain::FLU);
         }
@@ -91,7 +89,7 @@ void simulate(xlamb::Context& context) {
     const auto pr_exp = flu.get_component<Pathogen>().pr_exposure;
 
     for (size_t time = 0; time < 200; ++time) {
-        for (auto ent : synth_pop) {
+        for (auto [e, s, ih] : synth_pop.each_entity()) {
             if (unif(rng) < static_cast<double>(pr_exp)) {
                 auto [s, ih] = synth_pop.get_components_from(ent);
                 const auto current_suscep = s.current_susceptibility[Strain::FLU];
@@ -107,14 +105,12 @@ void simulate(xlamb::Context& context) {
 */
 
 void simulate(xlamb::Context& context) {
-    auto synth_pop = context.view_entities_with<Susceptibility, InfectionHistory>();
     auto flu = context.get_entity("flu_pathogen");
     const auto pr_exp = flu.get_component<Pathogen>().pr_exposure;
 
     for (size_t time = 0; time < 200; ++time) {
-        for (auto ent : synth_pop) {
+        for (auto [ent, s, ih] : context.each_entity_with<Susceptibility, InfectionHistory>()) {
             if (unif(rng) < static_cast<double>(pr_exp)) {
-                auto [s, ih] = synth_pop.get(ent);
                 const auto current_suscep = s.current_susceptibility[Strain::FLU];
                 if (unif(rng) < static_cast<double>(current_suscep)) {
                     ih.inf_hist.push_back({time, Strain::FLU});
@@ -126,14 +122,10 @@ void simulate(xlamb::Context& context) {
 }
 
 void report(xlamb::Context& context) {
-    auto full_pop = context.view_entities_with<Susceptibility, InfectionHistory, VaccinationHistory>();
-
-    std::unordered_map<VaccinationStatus, unsigned int> inf_ledger;
+    std::unordered_map<VaccinationStatus, size_t> inf_ledger;
     inf_ledger[VaccinationStatus::VAXD]   = 0;
     inf_ledger[VaccinationStatus::UNVAXD] = 0;
-    for (const auto ent : full_pop) {
-        const auto [s, ih, vh] = full_pop.get(ent);
-
+    for (const auto [ent, s, ih, vh] : context.each_entity_with<Susceptibility, InfectionHistory, VaccinationHistory>()) {
         const auto vaccinated = vh.is_vaccinated();
         const auto infected   = ih.has_been_infected();
         if (infected) {

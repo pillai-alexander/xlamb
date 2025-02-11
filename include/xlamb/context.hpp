@@ -24,6 +24,9 @@ class Context {
     template<typename... Ts>
     auto view_entities_with() { return registry.view<Ts...>(); }
 
+    template<typename... Ts>
+    auto each_entity_with() { return registry.view<Ts...>().each(); }
+
     void clear_registry();
 
   private:
