@@ -23,7 +23,6 @@ struct Pathogen {
 };
 
 struct Susceptibility {
-    Susceptibility() = default;
     std::unordered_map<Strain, float> baseline_susceptibility;
     std::unordered_map<Strain, float> current_susceptibility;
 };
@@ -81,36 +80,13 @@ void setup(xlamb::Context& context) {
     random_vaccination_campaign(context, 0.5, vax);
 }
 
-/* PLANNING XLAMB API
-
-void simulate(xlamb::Context& context) {
-    xlamb::View synth_pop = context.view_entities_with<Susceptibility, InfectionHistory>();
-    xlamb::Entity flu = context.get_entity("flu_pathogen");
-    const auto pr_exp = flu.get_component<Pathogen>().pr_exposure;
-
-    for (size_t time = 0; time < 200; ++time) {
-        for (auto [e, s, ih] : synth_pop.each_entity()) {
-            if (unif(rng) < static_cast<double>(pr_exp)) {
-                auto [s, ih] = synth_pop.get_components_from(ent);
-                const auto current_suscep = s.current_susceptibility[Strain::FLU];
-                if (unif(rng) < static_cast<double>(current_suscep)) {
-                    ih.inf_hist.push_back({time, Strain::FLU});
-                    s.current_susceptibility[Strain::FLU] = 0.0;
-                }
-            }
-        }
-    }
-}
-
-*/
-
 void simulate(xlamb::Context& context) {
     auto flu = context.get_entity("flu_pathogen");
-    const auto pr_exp = flu.get_component<Pathogen>().pr_exposure;
+    const double pr_exp = flu.get_component<Pathogen>().pr_exposure;
 
     for (size_t time = 0; time < 200; ++time) {
         for (auto [ent, s, ih] : context.each_entity_with<Susceptibility, InfectionHistory>()) {
-            if (unif(rng) < static_cast<double>(pr_exp)) {
+            if (unif(rng) < pr_exp) {
                 const auto current_suscep = s.current_susceptibility[Strain::FLU];
                 if (unif(rng) < static_cast<double>(current_suscep)) {
                     ih.inf_hist.push_back({time, Strain::FLU});
