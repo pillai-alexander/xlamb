@@ -7,6 +7,9 @@
 # unignore all directories
 !*/
 
+# other unignored
+!LICENSE
+
 # directory ignores
 build/
 .vscode/
