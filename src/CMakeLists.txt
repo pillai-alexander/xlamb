@@ -9,6 +9,7 @@ add_library(
   context.cpp
   simulator.cpp
   rng_handler.cpp
+  utility.cpp
   ${HEADER_LIST}
 )
 

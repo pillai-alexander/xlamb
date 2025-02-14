@@ -5,11 +5,11 @@
 
 namespace xlamb {
 
-struct Log {
-    Log(log_level l, std::string s) : level(l), entry(s) {}
-    log_level level;
-    std::string entry;
-};
+// struct Log {
+//     Log(log_level l, std::string s) : level(l), entry(s) {}
+//     log_level level;
+//     std::string entry;
+// };
 
 std::shared_ptr<spdlog::logger> Logger::spdlogger;
 

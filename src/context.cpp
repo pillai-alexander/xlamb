@@ -15,7 +15,7 @@ Entity Context::create_entity(const std::string name) {
     return e;
 }
 
-void Context::destroy_entity(Entity e) {
+void Context::destroy_entity(Entity& e) {
     registry.destroy(e.entity_handle);
 }
 

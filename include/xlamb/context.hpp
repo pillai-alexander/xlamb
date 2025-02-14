@@ -17,13 +17,14 @@ class Context {
     Context() : rng(std::make_unique<RNG_Handler>()) {};
     ~Context() = default;
 
-    Entity create_entity(const std::string = "default_entity");
-    void destroy_entity(Entity e);
+    Entity create_entity(const std::string name = "default_entity");
+
+    void destroy_entity(Entity& e);
 
     template<typename T>
     void clear_component() { registry.clear<T>(); }
 
-    Entity get_entity(std::string);
+    Entity get_entity(std::string name);
 
     template<typename... Ts>
     auto view_entities_with() { return registry.view<Ts...>(); }
