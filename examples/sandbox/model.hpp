@@ -1,7 +1,13 @@
+// DO NOT REMOVE XLAMB INCLUDE
 #include <xlamb/xlamb.hpp>
 
+// PLACE NECESSARY INCLUDES HERE
 #include <unordered_map>
 #include <random>
+
+//------------------------------------------------------------------------------
+// Place model-specific code below to be called in xlamb simulator fucntions.
+//------------------------------------------------------------------------------
 
 std::default_random_engine rng(0);
 std::uniform_real_distribution<> unif(0.0, 1.0);
@@ -104,6 +110,21 @@ void tally_infections_by_vax(xlamb::Context& context) {
     XLAMB_INFO("Num vax infs:   {}", inf_ledger[VaccinationStatus::VAXD]);
     XLAMB_INFO("Num unvax infs: {}", inf_ledger[VaccinationStatus::UNVAXD]);
 }
+
+//------------------------------------------------------------------------------
+// XLAMB SIMULATOR FUNCTIONS: DO NOT ALTER FUNCTION ARGUMENTS
+//
+// Place model-specific code inside these functions.
+//
+// setup() is designed for running code that is necessary to setup a simulation
+// or that needs to be run before the simulation time-steps begin.
+//
+// simulate() holds the main simulation loop and should be used to run code that
+// needs to be executed each time step.
+//
+// report() should be used to cleanup after a simulation (if necessary) and to
+// calculate user-desired metrics to be saved in CSV/SQLite.
+//------------------------------------------------------------------------------
 
 void setup(xlamb::Context& context) {
     auto flu = context.create_entity("flu_pathogen");
