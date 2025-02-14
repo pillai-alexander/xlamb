@@ -20,9 +20,9 @@ class RNG_Handler {
 
     void set_seed(const std::string&, seed_type);
 
-    double draw(const std::string&);
+    double unif(const std::string&);
 
-    double inspect_next_draw(const std::string&);
+    double inspect_next_unif(const std::string&);
 
   private:
     bool generator_exists(const std::string&);

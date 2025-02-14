@@ -32,7 +32,7 @@ void RNG_Handler::set_seed(const std::string& key, seed_type seed) {
     }
 }
 
-double RNG_Handler::draw(const std::string& key) {
+double RNG_Handler::unif(const std::string& key) {
     if (generator_exists(key)) {
         return gsl_rng_uniform(generators.at(key));
     } else {
@@ -41,7 +41,7 @@ double RNG_Handler::draw(const std::string& key) {
     }
 }
 
-double RNG_Handler::inspect_next_draw(const std::string& key) {
+double RNG_Handler::inspect_next_unif(const std::string& key) {
     if (generator_exists(key)) {
         auto rng_copy = gsl_rng_clone(generators.at(key));
         const double next_draw = gsl_rng_uniform(rng_copy);

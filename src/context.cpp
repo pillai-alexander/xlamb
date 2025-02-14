@@ -6,10 +6,6 @@
 
 namespace xlamb {
 
-Context::Context() {}
-
-Context::~Context() {}
-
 Entity Context::create_entity(const std::string name) {
     Entity e = {registry.create(), this};
     auto& tag = e.add_component<TagComponent>();
@@ -28,5 +24,7 @@ Entity Context::get_entity(std::string name) {
 }
 
 void Context::clear_registry() { registry.clear(); }
+
+RNG_Handler* Context::get_rng() { return rng.get(); }
 
 } // namespace xlamb

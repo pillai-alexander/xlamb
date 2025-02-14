@@ -3,14 +3,10 @@
 
 // PLACE NECESSARY INCLUDES HERE
 #include <unordered_map>
-#include <random>
 
 //------------------------------------------------------------------------------
 // Place model-specific code below to be called in xlamb simulator fucntions.
 //------------------------------------------------------------------------------
-
-std::default_random_engine rng(0);
-std::uniform_real_distribution<> unif(0.0, 1.0);
 
 enum class Strain {
     FLU,
@@ -48,19 +44,23 @@ void generate_synth_pop(xlamb::Context& context, const size_t pop_size) {
     }
 }
 
-void attempt_infection_given_exposure(Susceptibility& s, InfectionHistory& ih, const size_t time) {
+void attempt_infection_given_exposure(xlamb::Context& context, Susceptibility& s, InfectionHistory& ih, const size_t time) {
+    auto rng = context.get_rng();
     const auto current_suscep = s.current_susceptibility[Strain::FLU];
-    if (unif(rng) < static_cast<double>(current_suscep)) {
+
+    if (rng->unif("def") < static_cast<double>(current_suscep)) {
         ih.inf_hist.push_back({time, Strain::FLU});
         s.current_susceptibility[Strain::FLU] = 0.0;
     }
 }
 
 void transmission(xlamb::Context& context, const size_t time) {
+    auto rng = context.get_rng();
     const double pr_exp = context.get_entity("flu_pathogen").get_component<Pathogen>().pr_exposure;
+
     for (auto [ent, s, ih] : context.each_entity_with<Susceptibility, InfectionHistory>()) {
-        if (unif(rng) < pr_exp) {
-            attempt_infection_given_exposure(s, ih, time);
+        if (rng->unif("def") < pr_exp) {
+            attempt_infection_given_exposure(context, s, ih, time);
         }
     }
 }
@@ -91,6 +91,10 @@ void tally_infections_by_vax(xlamb::Context& context) {
 //------------------------------------------------------------------------------
 
 void setup(xlamb::Context& context) {
+    auto rng = context.get_rng();
+    rng->create_generator("def");
+    rng->set_seed("def", 0);
+
     auto flu = context.create_entity("flu_pathogen");
     flu.add_component<Pathogen>(Strain::FLU, 0.01);
 
