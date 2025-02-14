@@ -6,3 +6,5 @@
 
 #include <xlamb/entity.hpp>
 #include <xlamb/context.hpp>
+
+#include <xlamb/rng_handler.hpp>
