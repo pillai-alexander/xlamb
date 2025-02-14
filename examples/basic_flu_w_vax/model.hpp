@@ -13,6 +13,12 @@ enum class Strain {
     NUM_STRAINS
 };
 
+enum class VaccinationStatus {
+    VAXD,
+    UNVAXD,
+    NUM_VAX_STATUSES
+};
+
 struct Pathogen {
     Strain strain;
     float pr_exposure;
@@ -33,6 +39,16 @@ struct InfectionHistory {
     std::vector<Infection> inf_hist;
 };
 
+struct Vaccination {
+    size_t time;
+    std::unordered_map<Strain, float> efficacy;
+};
+
+struct VaccinationHistory {
+    bool is_vaccinated() { return vax_hist.size() > 0; }
+    std::vector<Vaccination> vax_hist;
+};
+
 void generate_synth_pop(xlamb::Context& context, const size_t pop_size) {
     for (size_t i = 0; i < pop_size; ++i) {
         auto p = context.create_entity("person_" + std::to_string(i));
@@ -41,38 +57,63 @@ void generate_synth_pop(xlamb::Context& context, const size_t pop_size) {
         s.current_susceptibility[Strain::FLU]  = 1.0;
 
         p.add_component<InfectionHistory>();
+        p.add_component<VaccinationHistory>();
+    }
+}
+
+void random_vaccination_campaign(xlamb::Context& context, const double pr_vax, const Vaccination& vax) {
+    const auto rng = context.get_rng();
+
+    for (auto [ent, vh, s] : context.each_entity_with<VaccinationHistory, Susceptibility>()) {
+        if (rng->unif("VAX") < pr_vax) {
+            vh.vax_hist.push_back(vax);
+            s.current_susceptibility.at(Strain::FLU) *= 1 - vax.efficacy.at(Strain::FLU);
+        }
     }
 }
 
 void attempt_infection_given_exposure(xlamb::Context& context, Susceptibility& s, InfectionHistory& ih, const size_t time) {
-    auto rng = context.get_rng();
+    const auto rng = context.get_rng();
     const auto current_suscep = s.current_susceptibility[Strain::FLU];
 
-    if (rng->unif("def") < static_cast<double>(current_suscep)) {
+    if (rng->unif("INF") < static_cast<double>(current_suscep)) {
         ih.inf_hist.push_back({time, Strain::FLU});
         s.current_susceptibility[Strain::FLU] = 0.0;
     }
 }
 
 void transmission(xlamb::Context& context, const size_t time) {
-    auto rng = context.get_rng();
+    const auto rng = context.get_rng();
     const double pr_exp = context.get_entity("flu_pathogen").get_component<Pathogen>().pr_exposure;
 
     for (auto [ent, s, ih] : context.each_entity_with<Susceptibility, InfectionHistory>()) {
-        if (rng->unif("def") < pr_exp) {
+        if (rng->unif("INF") < pr_exp) {
             attempt_infection_given_exposure(context, s, ih, time);
         }
     }
 }
 
 void tally_infections_by_vax(xlamb::Context& context) {
-    size_t num_infections = 0;
-    for (const auto [ent, s, ih] : context.each_entity_with<Susceptibility, InfectionHistory>()) {
+    std::unordered_map<VaccinationStatus, size_t> inf_ledger;
+    inf_ledger[VaccinationStatus::VAXD]   = 0;
+    inf_ledger[VaccinationStatus::UNVAXD] = 0;
+    size_t num_vaxd = 0;
+    for (const auto [ent, s, ih, vh] : context.each_entity_with<Susceptibility, InfectionHistory, VaccinationHistory>()) {
+        const auto vaccinated = vh.is_vaccinated();
         const auto infected   = ih.has_been_infected();
-        if (infected) num_infections++;
+        if (vaccinated) num_vaxd++;
+        if (infected) {
+            if (vaccinated) {
+                inf_ledger[VaccinationStatus::VAXD]++;
+            } else {
+                inf_ledger[VaccinationStatus::UNVAXD]++;
+            }
+        }
     }
 
-    XLAMB_INFO("Number of infections:   {}", num_infections);
+    XLAMB_INFO("Num vaxd:       {}", num_vaxd);
+    XLAMB_INFO("Num vax infs:   {}", inf_ledger[VaccinationStatus::VAXD]);
+    XLAMB_INFO("Num unvax infs: {}", inf_ledger[VaccinationStatus::UNVAXD]);
 }
 
 //------------------------------------------------------------------------------
@@ -92,13 +133,19 @@ void tally_infections_by_vax(xlamb::Context& context) {
 
 void setup(xlamb::Context& context) {
     auto rng = context.get_rng();
-    rng->create_generator("def");
+    rng->create_generator("INF");
+    rng->create_generator("VAX");
     rng->set_seed(0);
 
     auto flu = context.create_entity("flu_pathogen");
     flu.add_component<Pathogen>(Strain::FLU, 0.01);
 
     generate_synth_pop(context, 100);
+
+    auto vax = Vaccination();
+    vax.efficacy[Strain::FLU] = 0.5;
+
+    random_vaccination_campaign(context, 0.5, vax);
 }
 
 void simulate(xlamb::Context& context) {
