@@ -3,14 +3,10 @@
 
 // PLACE NECESSARY INCLUDES HERE
 #include <unordered_map>
-#include <random>
 
 //------------------------------------------------------------------------------
 // Place model-specific code below to be called in xlamb simulator fucntions.
 //------------------------------------------------------------------------------
-
-std::default_random_engine rng(0);
-std::uniform_real_distribution<> unif(0.0, 1.0);
 
 enum class Strain {
     FLU,
@@ -66,27 +62,33 @@ void generate_synth_pop(xlamb::Context& context, const size_t pop_size) {
 }
 
 void random_vaccination_campaign(xlamb::Context& context, const double pr_vax, const Vaccination& vax) {
+    const auto rng = context.get_rng();
+
     for (auto [ent, vh, s] : context.each_entity_with<VaccinationHistory, Susceptibility>()) {
-        if (unif(rng) < pr_vax) {
+        if (rng->unif("VAX") < pr_vax) {
             vh.vax_hist.push_back(vax);
             s.current_susceptibility.at(Strain::FLU) *= 1 - vax.efficacy.at(Strain::FLU);
         }
     }
 }
 
-void attempt_infection_given_exposure(Susceptibility& s, InfectionHistory& ih, const size_t time) {
+void attempt_infection_given_exposure(xlamb::Context& context, Susceptibility& s, InfectionHistory& ih, const size_t time) {
+    const auto rng = context.get_rng();
     const auto current_suscep = s.current_susceptibility[Strain::FLU];
-    if (unif(rng) < static_cast<double>(current_suscep)) {
+
+    if (rng->unif("INF") < static_cast<double>(current_suscep)) {
         ih.inf_hist.push_back({time, Strain::FLU});
         s.current_susceptibility[Strain::FLU] = 0.0;
     }
 }
 
 void transmission(xlamb::Context& context, const size_t time) {
+    const auto rng = context.get_rng();
     const double pr_exp = context.get_entity("flu_pathogen").get_component<Pathogen>().pr_exposure;
+
     for (auto [ent, s, ih] : context.each_entity_with<Susceptibility, InfectionHistory>()) {
-        if (unif(rng) < pr_exp) {
-            attempt_infection_given_exposure(s, ih, time);
+        if (rng->unif("INF") < pr_exp) {
+            attempt_infection_given_exposure(context, s, ih, time);
         }
     }
 }
@@ -95,9 +97,11 @@ void tally_infections_by_vax(xlamb::Context& context) {
     std::unordered_map<VaccinationStatus, size_t> inf_ledger;
     inf_ledger[VaccinationStatus::VAXD]   = 0;
     inf_ledger[VaccinationStatus::UNVAXD] = 0;
+
     for (const auto [ent, s, ih, vh] : context.each_entity_with<Susceptibility, InfectionHistory, VaccinationHistory>()) {
         const auto vaccinated = vh.is_vaccinated();
         const auto infected   = ih.has_been_infected();
+
         if (infected) {
             if (vaccinated) {
                 inf_ledger[VaccinationStatus::VAXD]++;
@@ -127,6 +131,11 @@ void tally_infections_by_vax(xlamb::Context& context) {
 //------------------------------------------------------------------------------
 
 void setup(xlamb::Context& context) {
+    auto rng = context.get_rng();
+    rng->create_generator("INF");
+    rng->create_generator("VAX");
+    rng->set_seed(0);
+
     auto flu = context.create_entity("flu_pathogen");
     flu.add_component<Pathogen>(Strain::FLU, 0.01);
 

@@ -97,11 +97,11 @@ void tally_infections_by_vax(xlamb::Context& context) {
     std::unordered_map<VaccinationStatus, size_t> inf_ledger;
     inf_ledger[VaccinationStatus::VAXD]   = 0;
     inf_ledger[VaccinationStatus::UNVAXD] = 0;
-    size_t num_vaxd = 0;
+
     for (const auto [ent, s, ih, vh] : context.each_entity_with<Susceptibility, InfectionHistory, VaccinationHistory>()) {
         const auto vaccinated = vh.is_vaccinated();
         const auto infected   = ih.has_been_infected();
-        if (vaccinated) num_vaxd++;
+
         if (infected) {
             if (vaccinated) {
                 inf_ledger[VaccinationStatus::VAXD]++;
@@ -111,7 +111,6 @@ void tally_infections_by_vax(xlamb::Context& context) {
         }
     }
 
-    XLAMB_INFO("Num vaxd:       {}", num_vaxd);
     XLAMB_INFO("Num vax infs:   {}", inf_ledger[VaccinationStatus::VAXD]);
     XLAMB_INFO("Num unvax infs: {}", inf_ledger[VaccinationStatus::UNVAXD]);
 }
