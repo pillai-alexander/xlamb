@@ -1,5 +1,5 @@
 add_executable(tests
-  test-context.cpp
+  test-context_entity_handling.cpp
 )
 target_link_libraries(tests xlamb gtest gtest_main)
 
