@@ -14,12 +14,12 @@ struct Log;
 
 class Logger {
   public:
-    Logger(const Logger&)            = delete;
-    Logger& operator=(const Logger&) = delete;
+    Logger(const Logger& other)            = delete;
+    Logger& operator=(const Logger& other) = delete;
 
     static Logger& get();
 
-    void set_console_printing(bool);
+    void set_console_printing(bool console);
 
     template<typename... Args>
     void trace(Args&&... args) {
@@ -56,8 +56,6 @@ class Logger {
     ~Logger() = default;
 
     bool console_logs;
-
-    void store_log(log_level, std::string);
 
     static std::shared_ptr<spdlog::logger> spdlogger;
 };

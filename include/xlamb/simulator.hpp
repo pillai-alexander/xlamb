@@ -12,9 +12,9 @@ class Simulator {
     Simulator() = default;
     ~Simulator() = default;
 
-    void bind(std::function<void(xlamb::Context&)>,
-              std::function<void(xlamb::Context&)>,
-              std::function<void(xlamb::Context&)>);
+    void bind(std::function<void(xlamb::Context&)> f_setup,
+              std::function<void(xlamb::Context&)> f_sim,
+              std::function<void(xlamb::Context&)> f_report);
 
     int run();
 

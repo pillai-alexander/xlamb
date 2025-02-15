@@ -66,6 +66,8 @@ CPMAddPackage("gh:skypjack/entt@3.14.0")
 # CPMAddPackage("gh:CLIUtils/CLI11@2.4.2")
 # CPMAddPackage("gh:google/googletest@1.15.2")
 
+find_package(GSL REQUIRED)
+
 # If the environment has these set, pull them into proper variables.
 set(CLANG_WARNINGS ${CLANG_COMPILE_FLAGS})
 set(GCC_WARNINGS   ${GCC_COMPILE_FLAGS})
