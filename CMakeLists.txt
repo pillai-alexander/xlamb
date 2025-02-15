@@ -56,7 +56,7 @@ if(PROJECT_IS_TOP_LEVEL)
   # set(XLAMB_ENABLE_SANITIZER_ADDRESS ON)
   # set(XLAMB_ENABLE_SANITIZER_LEAK ON)
   # set(XLAMB_ENABLE_SANITIZER_UNDEFINED ON)
-  # set(XLAMB_ENABLE_TESTS ON)
+  set(XLAMB_ENABLE_TESTS ON)
 endif()
 
 include(cmake/CPM.cmake)
@@ -64,7 +64,7 @@ include(cmake/CPM.cmake)
 CPMAddPackage("gh:gabime/spdlog@1.15.0")
 CPMAddPackage("gh:skypjack/entt@3.14.0")
 # CPMAddPackage("gh:CLIUtils/CLI11@2.4.2")
-# CPMAddPackage("gh:google/googletest@1.15.2")
+CPMAddPackage("gh:google/googletest@1.16.0")
 
 find_package(GSL REQUIRED)
 
