@@ -84,10 +84,10 @@ void attempt_infection_given_exposure(xlamb::Context& context, Susceptibility& s
 
 void transmission(xlamb::Context& context, const size_t time) {
     const auto rng = context.get_rng();
-    const double pr_exp = context.get_entity("flu_pathogen").get_component<Pathogen>().pr_exposure;
+    const auto pr_exp = context.get_entity("flu_pathogen").get_component<Pathogen>().pr_exposure;
 
     for (auto [ent, s, ih] : context.each_entity_with<Susceptibility, InfectionHistory>()) {
-        if (rng->unif("INF") < pr_exp) {
+        if (rng->unif("INF") < static_cast<double>(pr_exp)) {
             attempt_infection_given_exposure(context, s, ih, time);
         }
     }
