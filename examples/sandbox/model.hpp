@@ -49,6 +49,10 @@ struct VaccinationHistory {
     std::vector<Vaccination> vax_hist;
 };
 
+struct Ledger {
+    std::unordered_map<VaccinationStatus, size_t> infections;
+};
+
 void generate_synth_pop(xlamb::Context& context, const size_t pop_size) {
     for (size_t i = 0; i < pop_size; ++i) {
         auto p = context.create_entity("person_" + std::to_string(i));
@@ -94,9 +98,7 @@ void transmission(xlamb::Context& context, const size_t time) {
 }
 
 void tally_infections_by_vax(xlamb::Context& context) {
-    std::unordered_map<VaccinationStatus, size_t> inf_ledger;
-    inf_ledger[VaccinationStatus::VAXD]   = 0;
-    inf_ledger[VaccinationStatus::UNVAXD] = 0;
+    auto& inf_ledger = context.get<Ledger>().infections;
 
     for (const auto [ent, s, ih, vh] : context.each_entity_with<Susceptibility, InfectionHistory, VaccinationHistory>()) {
         const auto vaccinated = vh.is_vaccinated();
@@ -145,6 +147,10 @@ void setup(xlamb::Context& context) {
     vax.efficacy[Strain::FLU] = 0.5;
 
     random_vaccination_campaign(context, 0.5, vax);
+
+    auto& ledger = context.attach<Ledger>();
+    ledger.infections[VaccinationStatus::VAXD]   = 0;
+    ledger.infections[VaccinationStatus::UNVAXD] = 0;
 }
 
 void simulate(xlamb::Context& context) {
