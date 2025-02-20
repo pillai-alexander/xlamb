@@ -6,6 +6,10 @@
 
 namespace xlamb {
 
+Context::Context() {
+    attach<std::unique_ptr<RNG_Handler>>(std::make_unique<RNG_Handler>());
+}
+
 Entity Context::create_entity(const std::string name) {
     Entity e = {registry.create(), this};
     auto& tag = e.add_component<TagComponent>();
@@ -25,6 +29,6 @@ Entity Context::get_entity(std::string name) {
 
 void Context::clear_registry() { registry.clear(); }
 
-RNG_Handler* Context::get_rng() { return rng.get(); }
+RNG_Handler* Context::get_rng() { return get<std::unique_ptr<RNG_Handler>>().get(); }
 
 } // namespace xlamb
