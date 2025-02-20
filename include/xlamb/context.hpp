@@ -47,7 +47,7 @@ class Context {
     bool has() { return registry.ctx().contains<T>(); }
 
     template<typename T>
-    void erase() { return registry.ctx().erase<T>(); }
+    void erase() { registry.ctx().erase<T>(); }
 
     void clear_registry();
 
