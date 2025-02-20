@@ -1,5 +1,7 @@
 #include <xlamb/context.hpp>
 
+#include <memory>
+
 #include <entt/entt.hpp>
 
 #include <xlamb/entity.hpp>
