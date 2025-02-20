@@ -31,12 +31,9 @@ Entity Context::get_entity(std::string name) {
 
 void Context::clear_registry() { registry.clear(); }
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wnull-dereference"
 RNG_Handler* Context::get_rng() {
     auto& rng_handler = get<std::unique_ptr<RNG_Handler>>();
     return (rng_handler) ? rng_handler.get() : nullptr;
 }
-#pragma GCC diagnostic pop
 
 } // namespace xlamb
