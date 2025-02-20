@@ -31,6 +31,9 @@ Entity Context::get_entity(std::string name) {
 
 void Context::clear_registry() { registry.clear(); }
 
-RNG_Handler* Context::get_rng() { return get<std::unique_ptr<RNG_Handler>>().get(); }
+RNG_Handler* Context::get_rng() {
+    auto& rng_handler = get<std::unique_ptr<RNG_Handler>>();
+    return (rng_handler) ? rng_handler.get() : nullptr;
+}
 
 } // namespace xlamb
